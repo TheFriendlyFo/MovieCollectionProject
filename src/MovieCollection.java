@@ -26,32 +26,36 @@ public class MovieCollection
     
     while (!menuOption.equals("q"))
     {
-      System.out.println("------------ Main Menu ----------");
-      System.out.println("- search (t)itles");
-      System.out.println("- search (k)eywords");
-      System.out.println("- search (c)ast");
-      System.out.println("- see all movies of a (g)enre");
-      System.out.println("- list top 50 (r)ated movies");
-      System.out.println("- list top 50 (h)igest revenue movies");
-      System.out.println("- (q)uit");
-      System.out.print("Enter choice: ");
+      System.out.println("}~-----------~{ Main Menu }~-----------~{");
+      System.out.println("|                                       |");
+      System.out.println("| search (t)itles                       |");
+      System.out.println("| search (k)eywords                     |");
+      System.out.println("| search (c)ast                         |");
+      System.out.println("| see all movies of a (g)enre           |");
+      System.out.println("| list top 50 (r)ated movies            |");
+      System.out.println("| list top 50 (h)igest revenue movies   |");
+      System.out.println("| (q)uit                                |");
+      System.out.println("}~---------------~{ O }~---------------~{");
+      System.out.println("\nSelect an option");
+      System.out.print("> ");
+
       menuOption = scanner.nextLine();
-      
-      if (!menuOption.equals("q"))
-      {
-        processOption(menuOption);
-      }
+
+      processOption(menuOption);
     }
   }
   
   private void processOption(String option) {
+    System.out.println();
     switch (option) {
       case "t" -> searchTitles();
-      case "c" -> searchCast();
+      case "c" -> chooseMovie(searchCast(getCastMember()));
       case "k" -> searchKeywords();
       case "g" -> searchGenre();
       case "r" -> listHighestRated();
       case "h" -> listHighestRevenue();
+      case "q" -> {}
+      case "b" -> theBaconater();
       default -> System.out.println("Invalid choice!");
     }
   }
@@ -104,9 +108,7 @@ public class MovieCollection
     chooseMovie(results);
   }
 
-  private void searchCast()  {
-    String targetActor = getCastMember();
-
+  private ArrayList<Movie> searchCast(String targetActor)  {
     // arraylist to hold search results
     ArrayList<Movie> results = new ArrayList<>();
 
@@ -118,7 +120,7 @@ public class MovieCollection
       }
     }
 
-    chooseMovie(results);
+    return results;
   }
 
   private void searchGenre()  {
@@ -221,20 +223,6 @@ public class MovieCollection
     return genres.get(choice - 1);
   }
 
-  private void displayMovieInfo(Movie movie) {
-    System.out.println();
-    System.out.println("Title: " + movie.title());
-    System.out.println("Tagline: " + movie.tagline());
-    System.out.println("Runtime: " + movie.runtime() + " minutes");
-    System.out.println("Year: " + movie.year());
-    System.out.println("Directed by: " + movie.director());
-    System.out.println("Cast: " + movie.cast());
-    System.out.println("Overview: " + movie.overview());
-    System.out.println("User rating: " + movie.userRating());
-    System.out.println("Box office revenue: " + movie.revenue());
-  }
-
-
   private void chooseMovie(ArrayList<Movie> movies) {
     // now, display them all to the user
     for (int i = 0; i < movies.size(); i++)
@@ -249,8 +237,7 @@ public class MovieCollection
     scanner.nextLine();
 
     Movie selectedMovie = movies.get(choice - 1);
-
-    displayMovieInfo(selectedMovie);
+    selectedMovie.displayInfo();
 
     System.out.println("\n ** Press Enter to Return to Main Menu **");
     scanner.nextLine();
@@ -291,5 +278,31 @@ public class MovieCollection
       // Print out the exception that occurred
       System.out.println("Unable to access " + exception.getMessage());              
     }
+  }
+
+  private void theBaconater() {
+    ArrayList<Movie> path = new ArrayList<>();
+    theBaconater(getCastMember(), path, 0);
+    System.out.println(path);
+  }
+
+  private boolean theBaconater(String actor, ArrayList<Movie> path, int depth) {
+    if (depth == 5) return false;
+
+    for (Movie movie : searchCast(actor)) {
+      String cast = movie.cast();
+      if (cast.contains("Kevin Bacon")) {
+        path.add(movie);
+        return true;
+      }
+
+      for (String newActor : movie.cast().split("\\|")) {
+        if (theBaconater(newActor, path, depth + 1)) {
+          path.add(0, movie);
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }
