@@ -9,8 +9,15 @@ public record Movie(String title, String cast, String director, String tagline, 
   }
 
   @Override
-  public int compareTo(Comparable compare) {
+  public int compareTo(Comparable compare, int sortType) {
     Movie movie = (Movie) compare;
-    return title.compareTo(movie.title);
+    return switch (sortType) {
+      default -> title.compareTo(movie.title);
+      case 1 -> Integer.compare(runtime, movie.runtime);
+      case 2 -> genres.compareTo(movie.genres);
+      case 3 -> -Double.compare(userRating, movie.userRating);
+      case 4 -> -Integer.compare(year, movie.year);
+      case 5 -> -Integer.compare(revenue, movie.revenue);
+    };
   }
 }
