@@ -29,7 +29,7 @@ public record Movie(String title, String cast, String director, String tagline, 
       case 1 -> Integer.compare(runtime, movie.runtime);
       case 2 -> genres.compareTo(movie.genres);
       case 3 -> -Double.compare(userRating, movie.userRating);
-      case 4 -> -Integer.compare(year, movie.year);
+      case 4 -> Integer.compare(year, movie.year);
       case 5 -> -Integer.compare(revenue, movie.revenue);
     };
   }
