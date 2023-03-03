@@ -28,26 +28,28 @@ public class MovieCollection
     {
       System.out.println("}~-----------~{ Main Menu }~-----------~{");
       System.out.println("|                                       |");
-      System.out.println("| search (t)itles                       |");
-      System.out.println("| search (k)eywords                     |");
-      System.out.println("| search (c)ast                         |");
-      System.out.println("| see all movies of a (g)enre           |");
-      System.out.println("| list top 50 (r)ated movies            |");
-      System.out.println("| list top 50 (h)igest revenue movies   |");
-      System.out.println("| (q)uit                                |");
+      System.out.println("| Search (T)itles                       |");
+      System.out.println("| Search (K)eywords                     |");
+      System.out.println("| Search (C)ast                         |");
+      System.out.println("| See all movies of a (G)enre           |");
+      System.out.println("| List top 50 (R)ated movies            |");
+      System.out.println("| List top 50 (H)igest revenue movies   |");
+      System.out.println("| Run the (B)aconater!                  |");
+      System.out.println("| Change default (S)ort type            |");
+      System.out.println("| (Q)uit                                |");
       System.out.println("}~---------------~{ O }~---------------~{");
       System.out.println("\nSelect an option");
       System.out.print("> ");
 
       menuOption = scanner.nextLine();
 
-      processOption(menuOption);
+      processMenuOption(menuOption);
     }
   }
   
-  private void processOption(String option) {
+  private void processMenuOption(String option) {
     System.out.println();
-    switch (option) {
+    switch (option.toLowerCase()) {
       case "t" -> searchTitles();
       case "c" -> chooseMovie(searchCast(getCastMember()));
       case "k" -> searchKeywords();
@@ -55,11 +57,43 @@ public class MovieCollection
       case "r" -> listHighestRated();
       case "h" -> listHighestRevenue();
       case "q" -> {}
-      case "b" -> theBaconater();
+      case "b" -> runTheBaconater();
+      case "s" -> sortMenu();
       default -> System.out.println("Invalid choice!");
     }
   }
-  
+
+  private void sortMenu() {
+    System.out.println("}~-----------~{ Sort Menu }~-----------~{");
+    System.out.println("|                                       |");
+    System.out.println("| Sort by (T)itle                       |");
+    System.out.println("| Sort by (R)untime                     |");
+    System.out.println("| Sort by (G)enre                       |");
+    System.out.println("| Sort by (U)ser rating                 |");
+    System.out.println("| Sort by (Y)ear released               |");
+    System.out.println("| Sort by r(E)evenue                    |");
+    System.out.println("| (Q)uit to main menu                   |");
+    System.out.println("}~---------------~{ O }~---------------~{");
+    System.out.println("\nSelect an option");
+    System.out.print("> ");
+
+    processSortType(scanner.nextLine());
+  }
+
+  private void processSortType(String option) {
+    sortType = switch (option.toLowerCase()) {
+      default -> sortType;
+      case "t" -> 0;
+      case "r" -> 1;
+      case "g" -> 2;
+      case "u" -> 3;
+      case "y" -> 4;
+      case "e" -> 5;
+    };
+
+    QuickSort.sort(movies, sortType);
+  }
+
   private void searchTitles() {
     System.out.print("Enter a title search term: ");
     String searchTerm = scanner.nextLine();
@@ -280,29 +314,41 @@ public class MovieCollection
     }
   }
 
-  private void theBaconater() {
-    ArrayList<Movie> path = new ArrayList<>();
-    theBaconater(getCastMember(), path, 0);
-    System.out.println(path);
+  public void runTheBaconater() {
+    String actor = getCastMember();
+
+    for (int i = 1; i < 7; i++) {
+      if (runTheBaconater(actor, 0, i)) {
+        scanner.nextLine();
+        return;
+      }
+    }
+
+    System.out.println("Baconater failed!");
+    scanner.nextLine();
   }
 
-  private boolean theBaconater(String actor, ArrayList<Movie> path, int depth) {
-    if (depth == 5) return false;
+  private boolean runTheBaconater(String actor, int depth, int maxDepth) {
+    if (depth == maxDepth) return false;
 
     for (Movie movie : searchCast(actor)) {
       String cast = movie.cast();
+
       if (cast.contains("Kevin Bacon")) {
-        path.add(movie);
+        System.out.printf("\nAfter linking %s actors, Kevin Bacon was found!\n", depth + 1);
+        System.out.printf("In %s he shared a role with %s%s\n", movie.title(), actor, depth == 0 ? "!\n" : "...");
         return true;
       }
 
-      for (String newActor : movie.cast().split("\\|")) {
-        if (theBaconater(newActor, path, depth + 1)) {
-          path.add(0, movie);
-          return true;
-        }
+      for (String newActor : cast.split(":")) {
+        if (newActor.equals(actor)) continue;
+        if (!runTheBaconater(newActor, depth + 1, maxDepth)) continue;
+
+        System.out.printf("And %s shared a role with %s in %s%s\n", newActor, actor, movie.title(), depth == 0 ? "!\n" : "...");
+        return true;
       }
     }
+
     return false;
   }
 }
