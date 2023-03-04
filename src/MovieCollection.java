@@ -2,13 +2,17 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 public class MovieCollection
 {
   private ArrayList<Movie> movies;
+  private final HashMap<String, ArrayList<Movie>> linkedActors;
   private final Scanner scanner;
   private int sortType;
+
 
   public MovieCollection(String fileName)
   {
@@ -16,6 +20,23 @@ public class MovieCollection
     scanner = new Scanner(System.in);
     QuickSort.sort(movies);
     sortType = 0;
+    linkedActors = linkActors();
+  }
+
+  private HashMap<String, ArrayList<Movie>> linkActors() {
+    HashMap<String, ArrayList<Movie>> linkedActors = new HashMap<>();
+
+    for (Movie movie : movies) {
+      for (String actor : movie.cast().split("\\|")) {
+        if (linkedActors.containsKey(actor)) {
+          linkedActors.get(actor).add(movie);
+        } else {
+          linkedActors.put(actor, new ArrayList<>(List.of(movie)));
+        }
+      }
+    }
+
+    return linkedActors;
   }
 
   public void menu() {
@@ -51,7 +72,7 @@ public class MovieCollection
     System.out.println();
     switch (option.toLowerCase()) {
       case "t" -> searchTitles();
-      case "c" -> chooseMovie(searchCast(getCastMember()));
+      case "c" -> chooseMovie(linkedActors.get(getCastMember()));
       case "k" -> searchKeywords();
       case "g" -> searchGenre();
       case "r" -> listHighestRated();
@@ -140,21 +161,6 @@ public class MovieCollection
     }
 
     chooseMovie(results);
-  }
-
-  private ArrayList<Movie> searchCast(String targetActor)  {
-    // arraylist to hold search results
-    ArrayList<Movie> results = new ArrayList<>();
-
-    // search through ALL movies in collection
-    for (Movie movie : movies) {
-      if (movie.cast().contains(targetActor)) {
-        //add the Movie object to the results list
-        results.add(movie);
-      }
-    }
-
-    return results;
   }
 
   private void searchGenre()  {
@@ -282,7 +288,8 @@ public class MovieCollection
     {
       FileReader fileReader = new FileReader(fileName);
       BufferedReader bufferedReader = new BufferedReader(fileReader);
-      String line = bufferedReader.readLine();
+      bufferedReader.readLine();
+      String line;
       
       movies = new ArrayList<>();
       
@@ -331,7 +338,7 @@ public class MovieCollection
   private boolean runTheBaconater(String actor, int depth, int maxDepth) {
     if (depth == maxDepth) return false;
 
-    for (Movie movie : searchCast(actor)) {
+    for (Movie movie : linkedActors.get(actor)) {
       String cast = movie.cast();
 
       if (cast.contains("Kevin Bacon")) {
