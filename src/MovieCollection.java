@@ -347,7 +347,7 @@ public class MovieCollection
         return true;
       }
 
-      for (String newActor : cast.split(":")) {
+      for (String newActor : cast.split("\\|")) {
         if (newActor.equals(actor)) continue;
         if (!runTheBaconater(newActor, depth + 1, maxDepth)) continue;
 
